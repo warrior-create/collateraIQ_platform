@@ -1,0 +1,64 @@
+# CSA (Credit Support Annex) default terms
+# Individual client overrides are applied on top of these defaults
+
+defaults:
+  governing_law: ISDA_2002
+  collateral_agreement: CSA_English_Law
+  base_currency: INR
+  valuation_agent: bank
+  valuation_date: T+1
+  transfer_timing: T+1
+  dispute_resolution_days: 3
+  rounding_precision: 100_000
+
+# Netting set structures
+netting:
+  standard_single_set: true         # All trades in one netting set per client
+  product_segregation_flag: false    # Can be overridden per client
+
+# MPOR per call frequency
+mpor_by_frequency:
+  daily: 5
+  weekly: 10
+
+# Eligible collateral master list with max haircuts
+eligible_collateral_universe:
+  cash_inr:
+    description: "INR cash"
+    haircut: 0.00
+    currency: INR
+    eligible_for: [all]
+
+  cash_usd:
+    description: "USD cash"
+    haircut: 0.02
+    currency: USD
+    fx_risk: true
+    eligible_for: [all]
+
+  gsec_short:
+    description: "GoI G-Sec, maturity < 3 years"
+    haircut: 0.01
+    currency: INR
+    eligible_for: [all]
+
+  gsec_long:
+    description: "GoI G-Sec, maturity >= 3 years"
+    haircut: 0.03
+    currency: INR
+    eligible_for: [all]
+
+  equity_nifty50:
+    description: "Nifty 50 constituent equities"
+    haircut: 0.20
+    currency: INR
+    eligible_for: [family_office, long_only_pension]
+    concentration_limit_pct: 0.30   # Max 30% of IM in equity collateral
+
+  equity_single_stock:
+    description: "Single-stock equity (concentrated)"
+    haircut: 0.30
+    currency: INR
+    eligible_for: [family_office]
+    concentration_limit_pct: 0.20
+    wrong_way_risk_check: true       # Check if collateral correlated with exposure

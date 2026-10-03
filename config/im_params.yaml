@@ -1,0 +1,113 @@
+# IM calibration parameters
+# All parameters documented and cross-referenced to Basel/EMIR standards
+
+global:
+  base_currency: INR
+  confidence_level: 0.99            # 99th percentile
+  mpor_days: 10                     # Margin Period of Risk (business days)
+  lookback_days: 250                # Historical lookback (1 year)
+  stressed_lookback_days: 500       # Stressed period lookback
+  min_lookback_days: 125            # Minimum after procyclicality buffer
+  num_simulations: 10000            # Monte Carlo paths for PFE
+  random_seed: 42
+
+# Product-specific IM parameters
+products:
+  equity_financing:
+    method: historical_fhs           # Filtered Historical Simulation
+    confidence: 0.99
+    horizon_days: 10
+    min_im_floor: 0.05               # 5% of notional floor
+    liquidity_addon: true
+    concentration_addon: true
+    adv_participation_limit: 0.10    # 10% of ADV per day
+
+  gsec_repo:
+    method: haircut
+    haircut_schedule:
+      - {maturity_bucket: "0-1yr",  haircut: 0.005}
+      - {maturity_bucket: "1-3yr",  haircut: 0.010}
+      - {maturity_bucket: "3-7yr",  haircut: 0.020}
+      - {maturity_bucket: "7-10yr", haircut: 0.030}
+      - {maturity_bucket: "10yr+",  haircut: 0.050}
+    calibration_metric: yield_change_99pct_10day
+
+  irs:
+    method: historical_fhs
+    confidence: 0.99
+    horizon_days: 10
+    risk_factor: curve_factor_pnl    # DV01 × yield change
+    challenger_method: simm_lite
+    delta_margin_weight: 0.30        # SIMM blend weight
+
+  cds_index:
+    method: spread_shock_var
+    confidence: 0.99
+    horizon_days: 10
+    jump_to_default_addon: true
+    default_recovery_rate: 0.40      # Standard recovery assumption
+    index_concentration: false
+
+  equity_options:
+    method: scenario_grid            # SPAN-style
+    spot_shocks: [-0.30, -0.20, -0.15, -0.10, -0.05, 0, 0.05, 0.10, 0.15, 0.20, 0.30]
+    vol_shocks: [-0.40, -0.20, 0, 0.20, 0.40]
+    short_option_minimum: 0.03       # 3% of notional minimum for short options
+    margin_is_worst_scenario: true
+
+  fx_forward:
+    method: historical_fhs
+    confidence: 0.99
+    horizon_days: 10
+    pairs: [USDINR]
+
+# Procyclicality controls (EMIR-style)
+# Reference: EMIR RTS on CCPs, Article 26 — Margin procyclicality
+procyclicality:
+  buffer_fraction: 0.25             # 25% buffer added to base IM (EMIR Article 28 proxy)
+  floor_fraction: 0.75              # IM cannot fall below 75% of stressed-period IM
+  stress_weight: 0.25               # Blended IM = 0.75 × current + 0.25 × stressed
+  review_period_days: 250
+
+# Add-on parameters
+addons:
+  concentration:
+    adv_participation_threshold: 0.10   # >10% of ADV triggers concentration add-on
+    liquidation_days_assumption: 10     # Days to liquidate concentrated position
+    sqrt_scaling: true                  # Scale by sqrt(liquidation_days / horizon)
+
+  liquidity:
+    illiquidity_threshold_adv: 0.05     # <5% daily turnover relative to position = illiquid
+    illiquidity_addon_multiplier: 1.50  # 50% add-on for illiquid positions
+
+  wrong_way_risk:
+    correlation_threshold: 0.40        # Correlation above this triggers WWR add-on
+    wwr_addon_multiplier: 1.20         # 20% add-on for WWR
+
+# SA-CCR parameters (Basel III, CRE53)
+# Reference: BCBS d279 — The standardised approach for measuring CCR (SA-CCR)
+sa_ccr:
+  alpha: 1.4                          # Regulatory multiplier alpha
+  asset_class_addons:
+    interest_rate:
+      short_maturity_sf:  0.0050      # Supervisory factor, <1yr bucket
+      medium_maturity_sf: 0.0050      # 1yr–5yr
+      long_maturity_sf:   0.0150      # >5yr
+    fx: 0.04
+    equity: 0.32
+    credit_ig: 0.0038
+    credit_hy: 0.0106
+  maturity_buckets:
+    - {label: "M1", max_years: 1,  weight: 1.0}
+    - {label: "M2", max_years: 5,  weight: 1.0}
+    - {label: "M3", max_years: 99, weight: 1.5}
+
+# CVA parameters
+cva:
+  recovery_rate: 0.40
+  assumed_hazard_rate: 0.015          # 150bps default intensity (credit proxy)
+
+# MPOR scaling comparison
+mpor_scaling:
+  methods: [sqrt_time, overlapping_10day]
+  test_horizons: [1, 2, 5, 10, 20]   # business days

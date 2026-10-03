@@ -1,0 +1,5 @@
+name: "Lookback extension and Buffer increase"
+description: "Increase lookback from 250 to 500 days and procyclicality buffer from 25% to 30%"
+changes:
+  lookback_days: 500
+  buffer_fraction: 0.30

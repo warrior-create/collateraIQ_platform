@@ -1,0 +1,16 @@
+scenarios:
+  - name: 2008_GFC
+    type: historical
+    shock_rates: -0.02
+    shock_equity: -0.40
+    shock_credit: 2.50
+  - name: 2020_COVID
+    type: historical
+    shock_rates: -0.015
+    shock_equity: -0.30
+    shock_credit: 1.50
+  - name: 2022_Rate_Shock
+    type: historical
+    shock_rates: +0.03
+    shock_equity: -0.20
+    shock_credit: 1.20

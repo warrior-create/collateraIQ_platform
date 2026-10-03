@@ -1,0 +1,105 @@
+# Archetype definitions for 25 synthetic clients
+# Each archetype has a base config; individual client parameters are seeded offsets
+
+archetypes:
+
+  leveraged_hedge_fund:
+    description: "High-leverage multi-strategy hedge fund. Daily VM calls. Short MPOR tolerance."
+    count: 6
+    threshold: 0                    # Zero threshold — any exposure generates a call
+    mta: 250_000                    # INR
+    independent_amount: 5_000_000   # IA posted by client
+    rounding: 100_000
+    call_frequency: daily
+    mpor: 5                         # business days
+    eligible_collateral:
+      - {asset: cash_inr, haircut: 0.00}
+      - {asset: cash_usd, haircut: 0.02}
+      - {asset: gsec_short, haircut: 0.01}
+    products:
+      - equity_financing
+      - irs
+      - fx_forward
+      - equity_options
+    leverage_range: [5, 20]
+    notional_range_inr: [50_000_000, 500_000_000]
+
+  long_only_pension:
+    description: "Conservative pension/insurance fund. Weekly calls. Low volatility portfolio."
+    count: 5
+    threshold: 2_000_000
+    mta: 1_000_000
+    independent_amount: 0
+    rounding: 500_000
+    call_frequency: weekly
+    mpor: 10
+    eligible_collateral:
+      - {asset: cash_inr, haircut: 0.00}
+      - {asset: gsec_long, haircut: 0.03}
+      - {asset: gsec_short, haircut: 0.01}
+    products:
+      - gsec_repo
+      - irs
+    leverage_range: [1, 2]
+    notional_range_inr: [100_000_000, 2_000_000_000]
+
+  corporate_hedger:
+    description: "Corporate treasury hedging FX and rate exposure. Semi-annual maturities."
+    count: 5
+    threshold: 5_000_000
+    mta: 500_000
+    independent_amount: 0
+    rounding: 100_000
+    call_frequency: daily
+    mpor: 5
+    eligible_collateral:
+      - {asset: cash_inr, haircut: 0.00}
+      - {asset: cash_usd, haircut: 0.02}
+    products:
+      - fx_forward
+      - irs
+    leverage_range: [1, 3]
+    notional_range_inr: [20_000_000, 200_000_000]
+
+  family_office:
+    description: "Concentrated single-stock family office. High concentration add-on applicable."
+    count: 5
+    threshold: 1_000_000
+    mta: 250_000
+    independent_amount: 2_000_000
+    rounding: 100_000
+    call_frequency: daily
+    mpor: 7
+    eligible_collateral:
+      - {asset: cash_inr, haircut: 0.00}
+      - {asset: equity_nifty50, haircut: 0.20}
+      - {asset: equity_single_stock, haircut: 0.30}
+    products:
+      - equity_financing
+      - equity_options
+      - single_stock_options
+    concentration_flag: true
+    leverage_range: [2, 8]
+    notional_range_inr: [10_000_000, 150_000_000]
+
+  macro_fund:
+    description: "Global macro fund. Diversified rates, FX and credit book. Daily calls."
+    count: 4
+    threshold: 0
+    mta: 500_000
+    independent_amount: 10_000_000
+    rounding: 250_000
+    call_frequency: daily
+    mpor: 5
+    eligible_collateral:
+      - {asset: cash_inr, haircut: 0.00}
+      - {asset: cash_usd, haircut: 0.02}
+      - {asset: gsec_short, haircut: 0.01}
+      - {asset: gsec_long, haircut: 0.03}
+    products:
+      - irs
+      - cds_index
+      - fx_forward
+      - gsec_repo
+    leverage_range: [3, 15]
+    notional_range_inr: [100_000_000, 1_000_000_000]

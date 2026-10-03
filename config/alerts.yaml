@@ -1,0 +1,61 @@
+# Alert rules for daily monitoring
+
+alerts:
+  limit_breach:
+    enabled: true
+    severity: critical
+    description: "Client exposure exceeds credit limit"
+    threshold_pct: 1.00             # 100% = at limit
+
+  margin_deficit:
+    enabled: true
+    severity: critical
+    description: "Collateral held < exposure after threshold/MTA"
+    min_coverage_ratio: 1.00
+
+  coverage_ratio_drop:
+    enabled: true
+    severity: high
+    description: "IM coverage ratio fell materially"
+    drop_threshold_pct: 0.10        # 10 pp drop triggers alert
+
+  concentration_spike:
+    enabled: true
+    severity: high
+    description: "Position concentration vs ADV exceeded threshold"
+    adv_threshold: 0.15             # 15% of ADV
+
+  large_price_move:
+    enabled: true
+    severity: medium
+    description: "Risk factor moved > N standard deviations"
+    zscore_threshold: 3.0
+
+  stale_data:
+    enabled: true
+    severity: high
+    description: "Market data not updated within expected window"
+    max_staleness_hours: 6
+
+  margin_call_overdue:
+    enabled: true
+    severity: critical
+    description: "Margin call not settled within cure period"
+    cure_period_days: 2
+
+  early_warning_score:
+    enabled: true
+    severity: medium
+    description: "Client early-warning score above threshold"
+    score_threshold: 0.70           # Logistic regression probability
+
+  wwr_triggered:
+    enabled: true
+    severity: high
+    description: "Wrong-way risk: collateral correlated with exposure"
+    correlation_threshold: 0.40
+
+escalation:
+  level_1_hours: 2                  # Breach → alert in 2h
+  level_2_hours: 24                 # Unresolved → escalate to desk head
+  level_3_hours: 48                 # Unresolved → risk committee
